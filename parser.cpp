@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <vector>
 
-void searchLogs(std::string path, std::string fileName, std::string device){
+void searchLogs(std::string path, std::string fileName, std::string device, int& concurrency){
 	std::fstream readFile;
 	readFile.open(path);
 
@@ -38,6 +38,7 @@ void searchLogs(std::string path, std::string fileName, std::string device){
 		
 		str.replace(0, index + 1, "");
 		info = str;
+		concurrency++;
 		time = fileName.substr(5, fileName.length() - 10);
 		std::cout << "DATA | " << time << "-" << second << " | INFO | " << info << std::endl;
 	}
@@ -49,7 +50,7 @@ int main() {
 
 	std::vector<std::string> v_pathFile;
 	std::vector<std::string> v_File;
-
+	int *concurrency = 0;
 	try {
 		for (auto& pointer : std::filesystem::directory_iterator(path)) {
 		auto fileName = pointer.path().filename().string();
@@ -64,7 +65,11 @@ int main() {
 	}
 
 	for (int i = 0; i < v_File.size(); i++) {
-		searchLogs(v_pathFile[i], v_File[i], device);
+		searchLogs(v_pathFile[i], v_File[i], device, *concurrency);
+	}
+
+	if(concurrency == 0) {
+		std::cout << "Not find!" << std::endl;
 	}
 }
 
