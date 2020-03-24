@@ -2,72 +2,69 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
-using namespace std;
+#include <vector>
 
-int concurrency;
-
-void searchFile(string path, string device);
-
-void searchLogs(string path, string device, string fileName);
-
-void searchIndexColon(string& str, int& index);
-
-void printInfoLogs(string& fileName, string& info, string& second);
-
-int main() {
-	string deviceName;
-	while (1) {
-		cin >> deviceName;
-		searchFile("logs/", deviceName);
-		if (concurrency == 0) {
-			cout << "Not find!" << endl;
-		}
-	}
-}
-
-void searchFile(string path, string device) {
-	concurrency = 0;
-	for (auto& pointer : filesystem::directory_iterator(path)) {
-		auto fileName = pointer.path().filename().string();
-		searchLogs(pointer.path().string(), device, fileName);
-	}
-}
-
-void searchLogs(string path, string device, string fileName) {
-	fstream readFile;
+void searchLogs(std::string path, std::string fileName, std::string device){
+	std::fstream readFile;
 	readFile.open(path);
-	while(!readFile.eof()) {
-		string str, info, deviceName;
-		string second = "0";
-		getline(readFile, str);
+
+	while (!readFile.eof()){
+		std::string info, time, second = "0", str, deviceName;
 		int index = 0;
-		searchIndexColon(str, index);
+		getline(readFile, str);
+
+		for (int i = 0; i < str.length(); i++){
+			if(str[i] == ':') {
+				index = i;
+				break;
+			}
+		}
+
 		second += str.substr(0, index);
 		str.replace(0, index + 1, "");
 		index = 0;
-		searchIndexColon(str, index);
+
+		for (int i = 0; i < str.length(); i++){
+			if(str[i] == ':') {
+				index = i;
+				break;
+			}
+		}
+
 		deviceName = str.substr(0, index);
-		if(deviceName != device) {
+		if (deviceName != device) {
 			continue;
 		}
+		
 		str.replace(0, index + 1, "");
 		info = str;
-		concurrency++;
-		printInfoLogs(fileName, info, second);
+		time = fileName.substr(5, fileName.length() - 10);
+		std::cout << "DATA | " << time << "-" << second << " | INFO | " << info << std::endl;
 	}
 	readFile.close();
 }
 
-void printInfoLogs(string& fileName, string& info, string& second) {
-	string numberOfDate = fileName.substr(5, fileName.length() - 10);
-	cout << "DATA | " << numberOfDate << "-" << second << " | INFO | " << info << "\n";
-}
+int main() {
+	std::string path, device; std::cin >> device; std::cin >> path;
 
-void searchIndexColon(string& str, int& index) {
-	for (int i = 0; i < str.length(); i++) {
-		if(str[i] == ':') {
-			index = i;
-			break;
+	std::vector<std::string> v_pathFile;
+	std::vector<std::string> v_File;
+
+	try {
+		for (auto& pointer : std::filesystem::directory_iterator(path)) {
+		auto fileName = pointer.path().filename().string();
+		auto pathFile = pointer.path().string();
+		v_pathFile.push_back(pathFile);
+		v_File.push_back(fileName);
 		}
 	}
+	catch(const std::exception e) {
+		std::cout << "Invalid path!" << std::endl;
+		return 0;
+	}
+
+	for (int i = 0; i < v_File.size(); i++) {
+		searchLogs(v_pathFile[i], v_File[i], device);
+	}
 }
+
