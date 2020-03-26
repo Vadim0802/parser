@@ -4,7 +4,8 @@
 #include <filesystem>
 #include <vector>
 
-void searchLogs(std::string path, std::string fileName, std::string device, bool& isEmpty){
+
+void searchLogsByName(std::string path, std::string fileName, std::string device, bool& isEmpty){
 	std::fstream readFile;
 	readFile.open(path);
 
@@ -12,6 +13,10 @@ void searchLogs(std::string path, std::string fileName, std::string device, bool
 		std::string info, time, second = "0", str, deviceName;
 		int index = 0;
 		getline(readFile, str);
+		if (str.length() == 0 || str.find("garbage")) {
+			continue;
+		}
+		
 
 		for (int i = 0; i < str.length(); i++){
 			if(str[i] == ':') {
@@ -32,6 +37,7 @@ void searchLogs(std::string path, std::string fileName, std::string device, bool
 		}
 
 		deviceName = str.substr(0, index);
+		
 		if (deviceName != device) {
 			continue;
 		}
@@ -46,7 +52,7 @@ void searchLogs(std::string path, std::string fileName, std::string device, bool
 }
 
 int main() {
-	std::string path, device; std::cin >> device; std::cin >> path;
+	std::string path, device; getline(std::cin, device); getline(std::cin, path);
 
 	std::vector<std::string> v_pathFile;
 	std::vector<std::string> v_File;
@@ -65,7 +71,7 @@ int main() {
 	}
 
 	for (int i = 0; i < v_File.size(); i++) {
-		searchLogs(v_pathFile[i], v_File[i], device, isEmpty);
+		searchLogsByName(v_pathFile[i], v_File[i], device, isEmpty);
 	}
 
 	if(isEmpty) {
