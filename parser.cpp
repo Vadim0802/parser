@@ -13,7 +13,7 @@ void searchLogsByName(std::string path, std::string fileName, std::string device
 		std::string info, time, second = "0", str, deviceName;
 		int index = 0;
 		getline(readFile, str);
-		if (str.length() == 0 || str.find("garbage")) {
+		if (str.length() == 0 || str.find("garbage") != -1) {
 			continue;
 		}
 		
@@ -52,7 +52,9 @@ void searchLogsByName(std::string path, std::string fileName, std::string device
 }
 
 int main() {
-	std::string path, device; getline(std::cin, device); getline(std::cin, path);
+	std::string path, device;
+	std::cout << "Enter device name: "; getline(std::cin, device);
+	std::cout << "Enter path:"; getline(std::cin, path);
 
 	std::vector<std::string> v_pathFile;
 	std::vector<std::string> v_File;
