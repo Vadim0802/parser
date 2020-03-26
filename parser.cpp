@@ -10,7 +10,7 @@ void searchLogsByName(std::string path, std::string fileName, std::string device
 	readFile.open(path);
 
 	while (!readFile.eof()){
-		std::string info, time, second = "0", str, deviceName;
+		std::string info, time, second, str, deviceName;
 		int index = 0;
 		getline(readFile, str);
 		if (str.length() == 0 || str.find("garbage") != -1) {
@@ -24,8 +24,12 @@ void searchLogsByName(std::string path, std::string fileName, std::string device
 				break;
 			}
 		}
-
-		second += str.substr(0, index);
+		if(index == 2) {
+			second = str.substr(0, index);
+		} else {
+			second = "0" + str.substr(0, index);
+		}
+		
 		str.replace(0, index + 1, "");
 		index = 0;
 
